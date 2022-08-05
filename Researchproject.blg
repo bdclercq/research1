@@ -1,0 +1,10 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: Researchproject.aux
+The style file: amsplain.bst
+Database file #1: Researchproject.bib
+Warning--entry type for "onlinerecognition" isn't style-file defined
+--line 1 of file Researchproject.bib
+Too many commas in name 1 of "Liu Wenyinh, Wenjie Qian, Rong Xiao, Xiangyu Jin" for entry onlinerecognition
+while executing---line 1139 of file amsplain.bst
+Too many commas in name 1 of "Liu Wenyinh, Wenjie Qian, Rong Xiao, Xiangyu Jin" for entry onlinerecognition
+while executing---line 1223 of file amsplain.bst
+(There were 2 error messages)

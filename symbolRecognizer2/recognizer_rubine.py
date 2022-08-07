@@ -27,6 +27,7 @@ class Recognizer(tkinter.Frame):
         self.init_canvas()
 
         self.classifier = sc.sClassifier()
+        self.is_training = 1
         self.take_input = 0
         self.points = []
         self.ovals = []
@@ -46,6 +47,12 @@ class Recognizer(tkinter.Frame):
         if name == "" or name =="quit":
             self.classifier.sDoneAdding()
             self.classifier.write("classifier.out")
+            print("Wrote classifier to file")
+            self.entry1.place_forget()
+            self.label1.place_forget()
+            self.button1.place_forget()
+            self.take_input = 1
+            self.is_training = 0
         else:
             self.take_input = 1
             self.training_name = name
@@ -72,13 +79,19 @@ class Recognizer(tkinter.Frame):
     def save_stroke(self, event):
         #print("Saving stroke ", self.points)
         if self.take_input:
-            self.take_input = 0
-            self.classifier.sAddExample(self.training_name, self.InputAGesture(self.points))
+            if self.is_training:
+                self.take_input = 0
+                self.classifier.sAddExample(self.training_name, self.InputAGesture(self.points))
+                self.entry1.delete(0, 'end')
+            elif not self.is_training:
+                scd, ap, dp = self.classifier.sClassifyAD(self.InputAGesture(self.points))
+                print("Gesture classified as {0}\n".format(scd.name))
+                print("Probability of unambiguous classification: {0}\n".format(ap))
+                print("Distance from class mean: {0}\n".format(dp))
             for o in self.ovals:
                 self.canvas.delete(o)
             self.points = []
             self.ovals = []
-            self.entry1.delete(0, 'end')
 
 
 # Create window

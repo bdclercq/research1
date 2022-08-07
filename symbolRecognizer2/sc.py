@@ -137,9 +137,10 @@ class sClassifier:
         return
 
     def sClassify(self, fv):
-        return self.sClassifyAD(fv, None, None)
+        return self.sClassifyAD(fv, 0, 0)
 
-    def sClassifyAD(self, fv, ap, dp):
+    def sClassifyAD(self, fv, ap=1, dp=1):
+
         disc = [None for i in range(MAXSCLASSES)]
 
         if not self.w:
@@ -149,14 +150,15 @@ class sClassifier:
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
 
         maxclass = 0
-        for i in range(self.nclasses):
+        for i in range(1, self.nclasses):
             if disc[i] > disc[maxclass]:
                 maxclass = i
 
         scd = self.classdope[maxclass]
 
         if ap:
-            for denom, i in range(self.nclasses):
+            denom = 0
+            for i in range(self.nclasses):
                 d = disc[i] - disc[maxclass]
                 if d > -7.0:
                     denom += math.exp(d)
@@ -165,7 +167,7 @@ class sClassifier:
         if dp:
             dp = self.MahalanobisDistance(fv, scd.average, self.invavgcov)
 
-        return scd
+        return scd, ap, dp
 
     def MahalanobisDistance(self, v, u, sigma):
         if not self.space or len(self.space) != len(v):
@@ -211,11 +213,12 @@ class sClassifier:
 
         for i in range(self.nclasses):
             scd = self.classdope[i]
-            file.write(ru.OutputVector(scd.average))
-            file.write(ru.OutputVector(self.w[i]))
+            file.write("{0}\n".format(ru.OutputVector(scd.average)))
+            file.write("{0}\n".format(ru.OutputVector(self.w[i])))
 
-        file.write(ru.OutputVector(self.cnst))
-        file.write(ru.OutputMatrix(self.invavgcov))
+        file.write("{0}\n".format(ru.OutputVector(self.cnst)))
+        file.write("{0}\n".format(ru.OutputMatrix(self.invavgcov)))
+        file.close()
 
     def read(self, infile):
         print("Reading classifier ")
@@ -244,6 +247,7 @@ class sClassifier:
         self.cnst = ru.InputVector(file.readline())
         self.invavgcov = ru.InputMatrix(file.readline())
         print("\n")
+        file.close()
 
     def sDistances(self, nclosest):
         d = [[None for i in range(self.nclasses)] for j in range(self.nclasses)]

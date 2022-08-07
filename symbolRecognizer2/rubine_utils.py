@@ -31,7 +31,7 @@ def DeSliceMatrix(m, fill, rowmask, colmask, result):
 
 def OutputVector(vector):
     # Return 1 line writeable version of the vector
-    return ["".join(str(i)) for i in vector]
+    return "".join(str(vector))
 
 
 def OutputMatrix(matrix):

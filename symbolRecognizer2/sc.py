@@ -27,9 +27,7 @@ class sClassifier:
     a classifier
     """
     # static variables
-    lastsc = 0
-    lastscd = 0
-    space = []
+
 
     def __init__(self):
         self.nfeatures = -1
@@ -38,21 +36,24 @@ class sClassifier:
         self.cnst = []
         self.w = []
         self.invavgcov = [[]]
+        self.lastsc = self
+        self.lastscd = sClassDope()
+        self.space = []
 
     def sClassNameLookup(self, classname):
-        if lastsc == self and (lastscd.name == classname):
-            return lastscd
+        if self.lastsc == self and (self.lastscd.name == classname):
+            return self.lastscd
         for i in range(self.nclasses):
             scd = self.classdope[i]
             if scd.name == classname:
-                lastsc = self
-                lastscd = scd
-                return
+                self.lastsc = self
+                self.lastscd = scd
+                return self.lastscd
         return 0
 
     def sAddClass(self, classname):
         scd = sClassDope()
-        self.classdope[self.nclasses] = scd
+        self.classdope.append(scd)
         scd.name = classname
         scd.number = self.nclasses
         scd.nexamples = 0
@@ -63,19 +64,19 @@ class sClassifier:
     def sAddExample(self, classname, y):
         nfv = [0 for i in range(50)]
 
-        scd = self.sClassNameLookup(self, classname)
+        scd = self.sClassNameLookup(classname)
         if scd == 0:
-            scd = self.sAddClass(self, classname)
+            scd = self.sAddClass(classname)
 
         if self.nfeatures == -1:
             self.nfeatures = len(y)
 
-        if (scd.nexamples == 0):
+        if scd.nexamples == 0:
             scd.average = [0 for i in range(self.nfeatures)]
             scd.sumcov = [[0 for i in range(self.nfeatures)] for j in range(self.nfeatures)]
 
-        if (self.nfeatures != len(y)):
-            print(y, " sAddExample: funny vector nrows!=%d", self.nfeatures)
+        if self.nfeatures != len(y):
+            print(y, " sAddExample: funny vector nrows!={0}".format(self.nfeatures))
             return
 
         scd.nexamples += 1
@@ -92,10 +93,9 @@ class sClassifier:
         for i in range(self.nfeatures):
             scd.average[i] = nm1on * scd.average[i] + recipn * y[i]
 
-
     def sDoneAdding(self):
         if self.nclasses == 0:
-            raise ("sDoneAdding: No classes\n")
+            raise Exception("sDoneAdding: No classes\n")
 
         avgcov = [[0 for i in range(self.nfeatures)] for j in range(self.nfeatures)]
         ne = 0
@@ -109,7 +109,7 @@ class sClassifier:
 
         denom = ne - self.nclasses
         if denom <= 0:
-            print("no examples, denom=%d\n", denom)
+            print("no examples, denom={0}\n".format(denom))
             return
 
         oneoverdenom = 1.0 / denom
@@ -123,14 +123,13 @@ class sClassifier:
         if math.fabs(det) <= EPS:
             self.FixClassifier(avgcov)
 
-        self.w = [None for i in range(self.nclasses)]
+        self.w = [[] for i in range(self.nclasses)]
         self.cnst = [None for i in range(self.nclasses)]
         for c in range(self.nclasses):
             scd = self.classdope[c]
             self.w[c] = [None for i in range(self.nfeatures)]
             np.dot(scd.average, self.invavgcov, self.w[c])
             self.cnst[c] = -0.5 * np.inner(self.w[c], scd.average)
-
         return
 
     def sClassify(self, fv):
@@ -140,7 +139,7 @@ class sClassifier:
         disc = [None for i in range(MAXSCLASSES)]
 
         if not self.w:
-            raise ("sClassifyAD: %x no trained classifier", self)
+            raise Exception("sClassifyAD: %x no trained classifier", self)
 
         for i in range(self.nclasses):
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
@@ -166,7 +165,7 @@ class sClassifier:
         return scd
 
     def MahalanobisDistance(self, v, u, sigma):
-        if not space or len(space) != len(v):
+        if not self.space or len(self.space) != len(v):
             space = [None for i in range(len(v))]
 
         for i in range(len(v)):
@@ -194,10 +193,10 @@ class sClassifier:
 
     def write(self, outfile):
         file = open(outfile, "w")
-        file.write("%d classes\n".format(self.nclasses))
+        file.write("{0} classes\n".format(self.nclasses))
         for i in range(self.nclasses):
             scd = self.classdope[i]
-            file.write("%s\n".format(scd.name))
+            file.write("{0}\n".format(scd.name))
 
         for i in range(self.nclasses):
             scd = self.classdope[i]

@@ -119,7 +119,12 @@ class sClassifier:
                 avgcov[i][j] = oneoverdenom
 
         self.invavgcov = [[None for i in range(self.nfeatures)] for j in range(self.nfeatures)]
-        det = np.linalg.det(np.matrix(avgcov).I)
+        det = 0
+        try:
+            avgcov_inv = np.matrix(avgcov).I
+            det = np.linalg.det(avgcov_inv)
+        except:
+            pass
         if math.fabs(det) <= EPS:
             self.FixClassifier(avgcov)
 
@@ -158,7 +163,6 @@ class sClassifier:
                     denom += math.exp(d)
                 ap = 1.0 / denom
 
-
         if dp:
             dp = self.MahalanobisDistance(fv, scd.average, self.invavgcov)
 
@@ -180,13 +184,21 @@ class sClassifier:
         for i in range(self.nfeatures):
             bv[i] = 1
             m = ru.SliceMatrix(avgcov, bv, bv)
-            det = np.linalg.det(np.matrix(m).I)
+            det = 0
+            try:
+                det = np.linalg.det(np.matrix(m).I)
+            except:
+                pass
             if math.fabs(det) <= EPS:
                 bv[i] = 0
 
         m = ru.SliceMatrix(avgcov, bv, bv)
         r = np.matrix(m).I
-        det = np.linalg.det(r)
+        det = 0
+        try:
+            det = np.linalg.det(r)
+        except:
+            pass
         if math.fabs(det) <= EPS:
             raise Exception("Can't fix classifier!")
         ru.DeSliceMatrix(r, 0.0, bv, bv, self.invavgcov)

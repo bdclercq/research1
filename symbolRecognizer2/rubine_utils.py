@@ -8,10 +8,21 @@ def QuadraticForm(vec, mat):
 
 
 def SliceMatrix(mat, rowmask, colmask):
+    assert len(mat) == len(rowmask)
+    # print("Input matrix for SliceMatrix:\n", mat)
     r = [i for i in range(len(rowmask)) if rowmask[i]]
-    to_ret = mat[r]
+    # print("Rows to keep: ", r)
+    to_ret = []
+    for i in r:
+        # print(mat[i])
+        to_ret.append(mat[i])
+    # print("Intermediate result: ", to_ret)
     c = [i for i in range(len(colmask)) if colmask[i]]
-    return to_ret[:, c]
+    # print("Columns to keep: ", c)
+    for j in range(len(to_ret)):
+        # print(row)
+        to_ret[j] = [to_ret[j][i] for i in c]
+    return to_ret
 
 
 def DeSliceMatrix(m, fill, rowmask, colmask, result):

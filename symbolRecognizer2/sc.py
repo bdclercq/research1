@@ -132,8 +132,7 @@ class sClassifier:
         self.cnst = [None for i in range(self.nclasses)]
         for c in range(self.nclasses):
             scd = self.classdope[c]
-            self.w[c] = [None for i in range(self.nfeatures)]
-            np.dot(scd.average, self.invavgcov, self.w[c])
+            self.w[c] = np.dot(scd.average, self.invavgcov)
             self.cnst[c] = -0.5 * np.inner(self.w[c], scd.average)
         return
 

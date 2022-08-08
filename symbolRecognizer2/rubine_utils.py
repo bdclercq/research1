@@ -92,14 +92,25 @@ def InputVector(input):
     line = input.split(" ")
     to_ret = []
     for i in range(len(line)-1):
-        to_ret.append(line[i])
+        val = 0
+        try:
+            val = float(line[i])
+        except:
+            try:
+                l = line[i].strip('[]')
+                if float(l) == 0.0:
+                    val = 0.0
+                else:
+                    val = np.matrix(float(l))
+            except Exception as e:
+                raise Exception('Cannot read vector: {0}'.format(e))
+        to_ret.append(val)
     return to_ret
 
 
 def InputMatrix(input):
     lines = input.split(";")
     m = []
-    for l in lines:
-        r = [i for i in l]
-        m.append(r)
+    for l in range(len(lines)-1):
+        m.append(InputVector(lines[l]))
     return m

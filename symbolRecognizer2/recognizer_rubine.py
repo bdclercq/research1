@@ -1,5 +1,4 @@
 import tkinter
-import numpy as np
 import sc
 import fv
 
@@ -24,6 +23,9 @@ class Recognizer(tkinter.Frame):
         self.button1 = tkinter.Button(text='Record example', command=self.training)
         self.canvas.create_window(200, 165, window=self.button1)
 
+        self.button2 = tkinter.Button(text='Import classifier', command=self.read_classifier)
+        self.canvas.create_window(300, 165, window=self.button2)
+
         self.init_canvas()
 
         self.classifier = sc.sClassifier()
@@ -35,16 +37,15 @@ class Recognizer(tkinter.Frame):
 
     def init_canvas(self):
         # Bind actions
-       # Release left mouse button
+        # Release left mouse button
         self.canvas.bind('<ButtonRelease-1>', self.save_stroke)
         # Move the mouse while left button pressed
         self.canvas.bind('<B1-Motion>', self.stroke)
         self.canvas.pack()
 
-
     def training(self):
         name = self.entry1.get()
-        if name == "" or name =="quit":
+        if name == "" or name == "quit":
             self.classifier.sDoneAdding()
             self.classifier.write("classifier.out")
             print("Wrote classifier to file")
@@ -57,16 +58,22 @@ class Recognizer(tkinter.Frame):
             self.take_input = 1
             self.training_name = name
 
+    def read_classifier(self):
+        self.classifier = sc.sClassifier()
+        self.classifier.read("classifier.out")
+        self.take_input = 1
+        self.is_training = 0
+
     # Collects points while the left mouse button is pressed
     def stroke(self, event):
         if self.take_input:
             self.points.append((event.x, event.y, event.time))
-            #python_green = "#476042"
+            # python_green = "#476042"
             x1, y1 = (event.x - 1), (event.y - 1)
             x2, y2 = (event.x + 1), (event.y + 1)
             oval = self.canvas.create_oval(x1, y1, x2, y2)
             self.ovals.append(oval)
-            #print(self.points)
+            # print(self.points)
 
     def InputAGesture(self, gesture):
         feature_vector = fv.FV()
@@ -77,7 +84,7 @@ class Recognizer(tkinter.Frame):
 
     # Left mouse button is released, save stroke
     def save_stroke(self, event):
-        #print("Saving stroke ", self.points)
+        # print("Saving stroke ", self.points)
         if self.take_input:
             if self.is_training:
                 self.take_input = 0

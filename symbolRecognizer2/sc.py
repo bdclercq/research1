@@ -191,6 +191,7 @@ class sClassifier:
             raise Exception("sClassifyAD: {0} no trained classifier".format(self))
 
         for i in range(self.nclasses):
+            print(self.w[i], ", ", fv)
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
 
         maxclass = 0
@@ -205,14 +206,13 @@ class sClassifier:
             denom = 0
             for i in range(self.nclasses):
                 d = disc[i] - disc[maxclass]
-                print(d)
                 # Quick check to avoid computing negligible term
                 if d > -7.0:
                     denom += math.exp(d)
                 # Handle the case where denom remains 0, as happened when drawing circles.
                 # According to the IEEE 754 Standard, division by zero should result in INF.
                 if denom == 0:
-                    ap = 1.0    # math.inf, or a probability of 100%
+                    ap = 0.0    # math.inf, or a probability of 0%
                 else:
                     ap = 1.0 / denom
 
@@ -283,14 +283,10 @@ class sClassifier:
 
         for i in range(self.nclasses):
             scd = self.classdope[i]
-            print("average:")
             file.write("{0}\n".format(ru.OutputVector(scd.average)))
-            print("w[i]:")
             file.write("{0}\n".format(ru.OutputVector(self.w[i])))
 
-        print("cnst:")
         file.write("{0}\n".format(ru.OutputVector(self.cnst)))
-        print("invavgcov:")
         file.write("{0}\n".format(ru.OutputMatrix(self.invavgcov)))
         file.close()
 
@@ -321,10 +317,14 @@ class sClassifier:
         for i in range(self.nclasses):
             scd = self.classdope[i]
             scd.average = ru.InputVector(file.readline())
+            print(scd.average)
             self.w[i] = ru.InputVector(file.readline())
+            print(self.w[i])
 
         self.cnst = ru.InputVector(file.readline())
+        print(self.cnst)
         self.invavgcov = ru.InputMatrix(file.readline())
+        print(self.invavgcov)
         print("\n")
         file.close()
 

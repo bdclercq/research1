@@ -205,10 +205,16 @@ class sClassifier:
             denom = 0
             for i in range(self.nclasses):
                 d = disc[i] - disc[maxclass]
+                print(d)
                 # Quick check to avoid computing negligible term
                 if d > -7.0:
                     denom += math.exp(d)
-                ap = 1.0 / denom
+                # Handle the case where denom remains 0, as happened when drawing circles.
+                # According to the IEEE 754 Standard, division by zero should result in INF.
+                if denom == 0:
+                    ap = 1.0    # math.inf, or a probability of 100%
+                else:
+                    ap = 1.0 / denom
 
         if dp:
             # Calculate distance to mean of chosen class
@@ -298,10 +304,10 @@ class sClassifier:
 
         n = None
 
-        file = open(infile, 'r', 100)
+        file = open(infile, 'r')
         buf = file.readline()
         try:
-            n = int(buf)
+            n = int(buf.split(" ")[0])
         except:
             raise Exception("sRead 1")
         print("{0} classes ".format(n))

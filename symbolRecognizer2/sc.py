@@ -1,5 +1,5 @@
 """
-create single path classifiers from feature vectors of examples,
+Create single path classifiers from feature vectors of examples,
 as well as classifying example feature vectors.
 """
 import math
@@ -12,7 +12,7 @@ EPS = math.pow(10, -6)
 
 class sClassDope:
     """
-    per gesture class information within a classifier
+    Per gesture class information within a classifier
     """
 
     def __init__(self):
@@ -25,10 +25,8 @@ class sClassDope:
 
 class sClassifier:
     """
-    a classifier
+    A classifier
     """
-
-    # static variables
 
     def __init__(self):
         self.nfeatures = -1
@@ -67,12 +65,12 @@ class sClassifier:
         :return: sClassDope that has been added
         """
         scd = sClassDope()
+        self.classdope.append(scd)
         scd.name = classname
         scd.number = self.nclasses
         scd.nexamples = 0
         scd.sumcov = [[]]
         self.nclasses += 1
-        self.classdope.append(scd)
         return scd
 
     def sAddExample(self, classname, y):
@@ -151,10 +149,11 @@ class sClassifier:
                 avgcov[i][j] = oneoverdenom
 
         # Invert the avg covariance matrix
-        self.invavgcov = np.matrix(avgcov).I
+        self.invavgcov = [[None for i in range(self.nfeatures)] for j in range(self.nfeatures)]
         det = 0
         try:
-            det = np.linalg.det(self.invavgcov)
+            avgcov_inv = np.matrix(avgcov).I
+            det = np.linalg.det(avgcov_inv)
         except:
             pass
         if math.fabs(det) <= EPS:

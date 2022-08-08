@@ -1,38 +1,60 @@
+"""
+These functions where probably implemented by Rubine in a separate file, but as this file was not included
+the implementations have been based on the description he offered in his thesis.
+"""
 import numpy as np
 
 
 def QuadraticForm(vec, mat):
+    """
+    Computes V' MV where V' denotes the transpose operation
+    :param vec: a vector
+    :param mat: a matrix
+    :return: V' MV
+    """
     v_p = np.transpose(vec)
     mv = np.dot(mat, vec)
     return np.inner(v_p, mv)
 
 
 def SliceMatrix(mat, rowmask, colmask):
+    """
+    Creates a new matrix, consisting only of those rows and columns in m whose corresponding
+        bits are set it rowmask and colmask, respectively.
+    :param mat: matrix to slice
+    :param rowmask: rows to mask
+    :param colmask: columns to mask
+    :return: sliced matrix
+    """
     assert len(mat) == len(rowmask)
-    # print("Input matrix for SliceMatrix:\n", mat)
     r = [i for i in range(len(rowmask)) if rowmask[i]]
-    # print("Rows to keep: ", r)
     to_ret = []
     for i in r:
-        # print(mat[i])
         to_ret.append(mat[i])
-    # print("Intermediate result: ", to_ret)
     c = [i for i in range(len(colmask)) if colmask[i]]
-    # print("Columns to keep: ", c)
     for j in range(len(to_ret)):
-        # print(row)
         to_ret[j] = [to_ret[j][i] for i in c]
     return to_ret
 
 
 def DeSliceMatrix(m, fill, rowmask, colmask, result):
+    """
+    First sets every element in result to fill, and then, every element in result whose row number is on
+    in rowmask and whose column number is on in colmask, is set from the corresponding element in the
+    inputmatrix m, which is smaller than r.
+    :param m:
+    :param fill:
+    :param rowmask:
+    :param colmask:
+    :param result:
+    :return:
+    """
     for i in range(len(result)):
         for j in range(len(result[i])):
             result[i][j] = fill
 
     r = [i for i in range(len(rowmask)) if rowmask[i]]
     c = [i for i in range(len(colmask)) if colmask[i]]
-
     for i in r:
         for j in c:
             result[i][j] = m[i][j]
@@ -41,12 +63,20 @@ def DeSliceMatrix(m, fill, rowmask, colmask, result):
 
 
 def OutputVector(vector):
-    # Return 1 line writeable version of the vector
-    return "".join(str(vector))
+    """
+    Return 1 line writeable version of the vector
+    :param vector: vector to translate
+    :return: string version of vector
+    """
+    return "".join(str(v for v in vector))
 
 
 def OutputMatrix(matrix):
-    # Return 1 line writeable version of the matrix
+    """
+    Return 1 line writeable version of the matrix
+    :param matrix: matrix to translate
+    :return: string version of the matrix
+    """
     line = ""
     for row in matrix:
         for col in row:

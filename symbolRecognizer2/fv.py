@@ -40,6 +40,9 @@ EPS = math.pow(10, -4)
 
 
 class FV:
+    """
+    Structure which holds intermediate results during feature vector calculation
+    """
     def __init__(self):
         # The following are used in calculating the features
         self.startx = 0
@@ -80,8 +83,14 @@ class FV:
         # Actual feature vector
         self.y = [0.0 for i in range(NFEATURES)]
 
-    # update an FV struct to reflect a new input point
     def AddPoint(self, x, y, t):
+        """
+        Update a FV to reflect a new input point
+        :param x: x-coordinate of the new point
+        :param y: y-coordinate of the new point
+        :param t: time values
+        :return: void
+        """
         self.npoints += 1
 
         # first point, initialize some vars
@@ -159,6 +168,10 @@ class FV:
         return
 
     def FvCalc(self):
+        """
+        Calculate and return a feature vector
+        :return: feature vector
+        """
         if self.npoints <= 1:
             return self.y   # A feature vector of all zeros
         self.y[PF_INIT_COS] = self.initial_cos

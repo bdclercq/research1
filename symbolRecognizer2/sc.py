@@ -41,7 +41,7 @@ class sClassifier:
 
     def sClassNameLookup(self, classname):
         """
-        Given a string name of a class, return its per class information
+        Given a string name of a class, return its per class information.
         :param classname: name of the class
         :return: sClassDope if it exists, 0 else
         """
@@ -60,7 +60,7 @@ class sClassifier:
 
     def sAddClass(self, classname):
         """
-        Add a new gesture class to a classifier
+        Add a new gesture class to a classifier.
         :param classname: name of the class
         :return: sClassDope that has been added
         """
@@ -76,7 +76,7 @@ class sClassifier:
 
     def sAddExample(self, classname, y):
         """
-        Add a new training example to a classifier
+        Add a new training example to a classifier.
         :param classname: name of the class
         :param y: feature vector
         :return: void
@@ -120,7 +120,7 @@ class sClassifier:
 
     def sDoneAdding(self):
         """
-        Run the training algorithm on the classifier
+        Run the training algorithm on the classifier.
         :return: void
         """
         if self.nclasses == 0:
@@ -171,7 +171,7 @@ class sClassifier:
 
     def sClassify(self, fv):
         """
-        Classify a feature vector
+        Classify a feature vector.
         :param fv: feature vector
         :return: void
         """
@@ -179,7 +179,7 @@ class sClassifier:
 
     def sClassifyAD(self, fv, ap=1, dp=1):
         """
-        Classify a feature vector, possibly computing rejection metrics
+        Classify a feature vector, possibly computing rejection metrics.
         :param fv: feature vector
         :param ap: value that indicates whether to calculate the probability of unambiguous classification
         :param dp: value that indicates whether to calculate the distance from the class mean
@@ -218,7 +218,7 @@ class sClassifier:
 
     def MahalanobisDistance(self, v, u, sigma):
         """
-        Compute the Mahalanobis distance between two vectors v and u
+        Compute the Mahalanobis distance between two vectors v and u.
         :param v: feature vector
         :param u: average features vector of class
         :param sigma: inverse covariance matrix of class
@@ -235,7 +235,7 @@ class sClassifier:
 
     def FixClassifier(self, avgcov):
         """
-        Handle the case of a singular average covariance matrix by removing features
+        Handle the case of a singular average covariance matrix by removing features.
         :param avgcov: singular average covariance matrix
         :return: void
         """
@@ -265,7 +265,7 @@ class sClassifier:
 
     def write(self, outfile):
         """
-        Write a classifier to a file
+        Write a classifier to a file.
         :param outfile: name of the output file
         :return: void
         """
@@ -286,7 +286,7 @@ class sClassifier:
 
     def read(self, infile):
         """
-        Read a classifier from a file
+        Read a classifier from a file.
         :param infile: name of the input file
         :return: void
         """
@@ -321,7 +321,7 @@ class sClassifier:
     def sDistances(self, nclosest):
         """
         compute pairwise distances between classes, and print the closest ones,
-            as a clue as to which gesture classes are confusable
+            as a clue as to which gesture classes are confusable.
         :param nclosest: closest pairs of classes
         :return:
         """

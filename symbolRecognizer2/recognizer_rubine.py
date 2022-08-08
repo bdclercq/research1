@@ -52,6 +52,7 @@ class Recognizer(tkinter.Frame):
             self.entry1.place_forget()
             self.label1.place_forget()
             self.button1.place_forget()
+            self.button2.place_forget()
             self.take_input = 1
             self.is_training = 0
         else:
@@ -61,6 +62,10 @@ class Recognizer(tkinter.Frame):
     def read_classifier(self):
         self.classifier = sc.sClassifier()
         self.classifier.read("classifier.out")
+        self.entry1.place_forget()
+        self.label1.place_forget()
+        self.button1.place_forget()
+        self.button2.place_forget()
         self.take_input = 1
         self.is_training = 0
 

@@ -191,7 +191,6 @@ class sClassifier:
             raise Exception("sClassifyAD: {0} no trained classifier".format(self))
 
         for i in range(self.nclasses):
-            print(self.w[i], ", ", fv)
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
 
         maxclass = 0
@@ -317,14 +316,10 @@ class sClassifier:
         for i in range(self.nclasses):
             scd = self.classdope[i]
             scd.average = ru.InputVector(file.readline())
-            print(scd.average)
             self.w[i] = ru.InputVector(file.readline())
-            print(self.w[i])
 
         self.cnst = ru.InputVector(file.readline())
-        print(self.cnst)
         self.invavgcov = ru.InputMatrix(file.readline())
-        print(self.invavgcov)
         print("\n")
         file.close()
 

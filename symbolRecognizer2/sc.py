@@ -277,10 +277,14 @@ class sClassifier:
 
         for i in range(self.nclasses):
             scd = self.classdope[i]
+            print("average:")
             file.write("{0}\n".format(ru.OutputVector(scd.average)))
+            print("w[i]:")
             file.write("{0}\n".format(ru.OutputVector(self.w[i])))
 
+        print("cnst:")
         file.write("{0}\n".format(ru.OutputVector(self.cnst)))
+        print("invavgcov:")
         file.write("{0}\n".format(ru.OutputMatrix(self.invavgcov)))
         file.close()
 
@@ -300,12 +304,12 @@ class sClassifier:
             n = int(buf)
         except:
             raise Exception("sRead 1")
-        print("%d classes ", n)
+        print("{0} classes ".format(n))
         for i in range(n):
             buf = file.readline()
             scd = self.sAddClass(buf)
             scd.name = buf
-            print("%s ", scd.name)
+            print("{0}".format(scd.name))
 
         self.w = [None for i in range(self.nclasses)]
         for i in range(self.nclasses):

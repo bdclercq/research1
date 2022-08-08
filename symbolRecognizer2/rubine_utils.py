@@ -7,7 +7,7 @@ import numpy as np
 
 def QuadraticForm(vec, mat):
     """
-    Computes V' MV where V' denotes the transpose operation
+    Computes V' MV where V' denotes the transpose operation.
     :param vec: a vector
     :param mat: a matrix
     :return: V' MV
@@ -19,7 +19,7 @@ def QuadraticForm(vec, mat):
 
 def SliceMatrix(mat, rowmask, colmask):
     """
-    Creates a new matrix, consisting only of those rows and columns in m whose corresponding
+    Creates a new matrix, consisting only of those rows and columns in mat whose corresponding
         bits are set it rowmask and colmask, respectively.
     :param mat: matrix to slice
     :param rowmask: rows to mask
@@ -41,7 +41,7 @@ def DeSliceMatrix(m, fill, rowmask, colmask, result):
     """
     First sets every element in result to fill, and then, every element in result whose row number is on
     in rowmask and whose column number is on in colmask, is set from the corresponding element in the
-    inputmatrix m, which is smaller than r.
+    input matrix m, which is smaller than r.
     :param m:
     :param fill:
     :param rowmask:
@@ -68,7 +68,10 @@ def OutputVector(vector):
     :param vector: vector to translate
     :return: string version of vector
     """
-    return "".join(str(v for v in vector))
+    line = ""
+    for v in vector:
+        line += "{0} ".format(v)
+    return line
 
 
 def OutputMatrix(matrix):
@@ -80,14 +83,23 @@ def OutputMatrix(matrix):
     line = ""
     for row in matrix:
         for col in row:
-            line.join(str(col))
-        line.join(";")
+            line += "{0} ".format(col)
+        line += ";"
     return line
 
 
 def InputVector(input):
-    pass
+    line = input.split(" ")
+    to_ret = []
+    for i in range(len(line)-1):
+        to_ret.append(line[i])
+    return to_ret
 
 
 def InputMatrix(input):
-    pass
+    lines = input.split(";")
+    m = []
+    for l in lines:
+        r = [i for i in l]
+        m.append(r)
+    return m

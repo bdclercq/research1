@@ -14,11 +14,12 @@ class sClassDope:
     """
     per gesture class information within a classifier
     """
+
     def __init__(self):
         self.name = ""
         self.number = -1
         self.nexamples = 0
-        self.average =[]
+        self.average = []
         self.sumcov = [[]]
 
 
@@ -26,8 +27,8 @@ class sClassifier:
     """
     a classifier
     """
-    # static variables
 
+    # static variables
 
     def __init__(self):
         self.nfeatures = -1
@@ -41,8 +42,16 @@ class sClassifier:
         self.space = []
 
     def sClassNameLookup(self, classname):
+        """
+        Given a string name of a class, return its per class information
+        :param classname: name of the class
+        :return: sClassDope if it exists, 0 else
+        """
+        # Quick check for last class name
         if self.lastsc == self and (self.lastscd.name == classname):
             return self.lastscd
+
+        # Linear search through all classes for name
         for i in range(self.nclasses):
             scd = self.classdope[i]
             if scd.name == classname:
@@ -52,25 +61,39 @@ class sClassifier:
         return 0
 
     def sAddClass(self, classname):
+        """
+        Add a new gesture class to a classifier
+        :param classname: name of the class
+        :return: sClassDope that has been added
+        """
         scd = sClassDope()
-        self.classdope.append(scd)
         scd.name = classname
         scd.number = self.nclasses
         scd.nexamples = 0
         scd.sumcov = [[]]
         self.nclasses += 1
+        self.classdope.append(scd)
         return scd
 
     def sAddExample(self, classname, y):
+        """
+        Add a new training example to a classifier
+        :param classname: name of the class
+        :param y: feature vector
+        :return: void
+        """
         nfv = [0 for i in range(50)]
 
+        # Search for the classname in existing scd's, add new if not found
         scd = self.sClassNameLookup(classname)
         if scd == 0:
             scd = self.sAddClass(classname)
 
+        # If this is the first time we add something to the classifier, set the number of features
         if self.nfeatures == -1:
             self.nfeatures = len(y)
 
+        # If this is the first example of the sClassDope, set some values
         if scd.nexamples == 0:
             scd.average = [0 for i in range(self.nfeatures)]
             scd.sumcov = [[0 for i in range(self.nfeatures)] for j in range(self.nfeatures)]
@@ -80,23 +103,32 @@ class sClassifier:
             return
 
         scd.nexamples += 1
-        nm1on = (scd.nexamples-1.0) / scd.nexamples
+        nm1on = (scd.nexamples - 1.0) / scd.nexamples
         recipn = 1.0 / scd.nexamples
 
+        # Incrementally update covariance matrix
         for i in range(self.nfeatures):
             nfv[i] = y[i] - scd.average[i]
 
+        # Only upper triangular part computed
         for i in range(self.nfeatures):
             for j in range(i, self.nfeatures):
                 scd.sumcov[i][j] += nm1on * nfv[i] * nfv[j]
 
+        # Incrementally update mean vector
         for i in range(self.nfeatures):
             scd.average[i] = nm1on * scd.average[i] + recipn * y[i]
 
     def sDoneAdding(self):
+        """
+        Run the training algorithm on the classifier
+        :return: void
+        """
         if self.nclasses == 0:
             raise Exception("sDoneAdding: No classes\n")
 
+        # Given covariance matrices for each class ( number of examples	- 1),
+        # compute the average (common) covariance matrix
         avgcov = [[0 for i in range(self.nfeatures)] for j in range(self.nfeatures)]
         ne = 0
         for c in range(self.nclasses):
@@ -118,16 +150,17 @@ class sClassifier:
                 avgcov[j][i] = oneoverdenom
                 avgcov[i][j] = oneoverdenom
 
-        self.invavgcov = [[None for i in range(self.nfeatures)] for j in range(self.nfeatures)]
+        # Invert the avg covariance matrix
+        self.invavgcov = np.matrix(avgcov).I
         det = 0
         try:
-            avgcov_inv = np.matrix(avgcov).I
-            det = np.linalg.det(avgcov_inv)
+            det = np.linalg.det(self.invavgcov)
         except:
             pass
         if math.fabs(det) <= EPS:
             self.FixClassifier(avgcov)
 
+        # Now compute discrimination functions
         self.w = [[] for i in range(self.nclasses)]
         self.cnst = [None for i in range(self.nclasses)]
         for c in range(self.nclasses):
@@ -137,14 +170,25 @@ class sClassifier:
         return
 
     def sClassify(self, fv):
+        """
+        Classify a feature vector
+        :param fv: feature vector
+        :return: void
+        """
         return self.sClassifyAD(fv, 0, 0)
 
     def sClassifyAD(self, fv, ap=1, dp=1):
-
+        """
+        Classify a feature vector, possibly computing rejection metrics
+        :param fv: feature vector
+        :param ap: value that indicates whether to calculate the probability of unambiguous classification
+        :param dp: value that indicates whether to calculate the distance from the class mean
+        :return: sClassDope, ap, dp
+        """
         disc = [None for i in range(MAXSCLASSES)]
 
         if not self.w:
-            raise Exception("sClassifyAD: %x no trained classifier", self)
+            raise Exception("sClassifyAD: {0} no trained classifier".format(self))
 
         for i in range(self.nclasses):
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
@@ -157,31 +201,46 @@ class sClassifier:
         scd = self.classdope[maxclass]
 
         if ap:
+            # Calculate probability of non ambiguity
             denom = 0
             for i in range(self.nclasses):
                 d = disc[i] - disc[maxclass]
+                # Quick check to avoid computing negligible term
                 if d > -7.0:
                     denom += math.exp(d)
                 ap = 1.0 / denom
 
         if dp:
+            # Calculate distance to mean of chosen class
             dp = self.MahalanobisDistance(fv, scd.average, self.invavgcov)
 
         return scd, ap, dp
 
     def MahalanobisDistance(self, v, u, sigma):
+        """
+        Compute the Mahalanobis distance between two vectors v and u
+        :param v: feature vector
+        :param u: average features vector of class
+        :param sigma: inverse covariance matrix of class
+        :return: distance
+        """
         if not self.space or len(self.space) != len(v):
-            space = [None for i in range(len(v))]
+            self.space = [None for i in range(len(v))]
 
         for i in range(len(v)):
-            space[i] = v[i] - u[i]
+            self.space[i] = v[i] - u[i]
 
-        result = ru.QuadraticForm(space, sigma)
+        result = ru.QuadraticForm(self.space, sigma)
         return result
 
     def FixClassifier(self, avgcov):
+        """
+        Handle the case of a singular average covariance matrix by removing features
+        :param avgcov: singular average covariance matrix
+        :return: void
+        """
         bv = [0 for i in range(self.nfeatures)]
-
+        # Just add the features one by one, discarding any that cause the matrix to be non invertible
         for i in range(self.nfeatures):
             bv[i] = 1
             m = ru.SliceMatrix(avgcov, bv, bv)
@@ -202,9 +261,14 @@ class sClassifier:
             pass
         if math.fabs(det) <= EPS:
             raise Exception("Can't fix classifier!")
-        ru.DeSliceMatrix(r, 0.0, bv, bv, self.invavgcov)
+        self.invavgcov = ru.DeSliceMatrix(r, 0.0, bv, bv, self.invavgcov)
 
     def write(self, outfile):
+        """
+        Write a classifier to a file
+        :param outfile: name of the output file
+        :return: void
+        """
         file = open(outfile, "w")
         file.write("{0} classes\n".format(self.nclasses))
         for i in range(self.nclasses):
@@ -221,6 +285,11 @@ class sClassifier:
         file.close()
 
     def read(self, infile):
+        """
+        Read a classifier from a file
+        :param infile: name of the input file
+        :return: void
+        """
         print("Reading classifier ")
 
         n = None
@@ -250,38 +319,43 @@ class sClassifier:
         file.close()
 
     def sDistances(self, nclosest):
+        """
+        compute pairwise distances between classes, and print the closest ones,
+            as a clue as to which gesture classes are confusable
+        :param nclosest: closest pairs of classes
+        :return:
+        """
         d = [[None for i in range(self.nclasses)] for j in range(self.nclasses)]
         min, max = 0, 0
-        n, mi, mj = 0, 0, 0
 
-        print("----------\n");
-        print("%d closest pairs of classes\n", nclosest)
+        print("----------\n")
+        print("{0} closest pairs of classes\n".format(nclosest))
         for i in range(len(d)):
-            for j in range(len(d[i])):
+            for j in range(i+1, len(d[i])):
                 d[i][j] = self.MahalanobisDistance(
-                            self.classdope[i].average,
-                            self.classdope[j].average,
-                            self.invavgcov)
+                    self.classdope[i].average,
+                    self.classdope[j].average,
+                    self.invavgcov)
         if d[i][j] > max:
             max = d[i][j]
 
-        for n in range(nclosest):
+        for n in range(1, len(nclosest)):
             min = max
             mi, mj = -1, -1
             for i in range(len(d)):
-                for j in range(len(d[i])):
+                for j in range(i+1, len(d[i])):
                     if d[i][j] < min:
                         mi, mj = i, j
                         min = d[mi][mj]
             if mi == 1:
                 break
 
-            print("%2d) %10.10s to %10.10s d=%g nstd=%g\n",
-                    n,
-                    self.classdope[mi].name,
-                    self.classdope[mj].name,
-                    d[mi][mj],
-                    math.sqrt(d[mi][mj]))
+            print("{0}) {1} to {2} d= {3} nstd={4}\n".format(
+                  n,
+                  self.classdope[mi].name,
+                  self.classdope[mj].name,
+                  d[mi][mj],
+                  math.sqrt(d[mi][mj])))
 
             d[mi][mj] = max + 1
 

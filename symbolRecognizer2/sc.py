@@ -65,6 +65,7 @@ class sClassifier:
         :return: sClassDope that has been added
         """
         scd = sClassDope()
+        # Do not move this append further down or recognition will fail
         self.classdope.append(scd)
         scd.name = classname
         scd.number = self.nclasses

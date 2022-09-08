@@ -42,21 +42,24 @@ def DeSliceMatrix(m, fill, rowmask, colmask, result):
     First sets every element in result to fill, and then, every element in result whose row number is on
     in rowmask and whose column number is on in colmask, is set from the corresponding element in the
     input matrix m, which is smaller than r.
-    :param m:
-    :param fill:
-    :param rowmask:
-    :param colmask:
-    :param result:
-    :return:
+    :param m: original input matrix
+    :param fill: default value to fill resulting matrix with
+    :param rowmask: mask for rows to keep
+    :param colmask: mask for columns to keep
+    :param result: result matrix
+    :return: returns the resulting matrix
     """
+    print(result)
+    print(m)
     for i in range(len(result)):
         for j in range(len(result[i])):
-            result[i][j] = fill
+            result[i][j] = np.zeros(result[i][j].shape)
 
     r = [i for i in range(len(rowmask)) if rowmask[i]]
     c = [i for i in range(len(colmask)) if colmask[i]]
     for i in r:
         for j in c:
+            print(result[i][j], ", ", m[i][j])
             result[i][j] = m[i][j]
 
     return result

@@ -65,7 +65,6 @@ class sClassifier:
         :return: sClassDope that has been added
         """
         scd = sClassDope()
-        # Do not move this append further down or recognition will fail
         self.classdope.append(scd)
         scd.name = classname
         scd.number = self.nclasses
@@ -81,6 +80,7 @@ class sClassifier:
         :param y: feature vector
         :return: void
         """
+        # New feature vector
         nfv = [0 for i in range(50)]
 
         # Search for the classname in existing scd's, add new if not found
@@ -146,15 +146,14 @@ class sClassifier:
         oneoverdenom = 1.0 / denom
         for i in range(self.nfeatures):
             for j in range(i, self.nfeatures):
-                avgcov[j][i] = oneoverdenom
-                avgcov[i][j] = oneoverdenom
+                avgcov[i][j] *= oneoverdenom
+                avgcov[j][i] = avgcov[i][j]
 
         # Invert the avg covariance matrix
-        self.invavgcov = [[None for i in range(self.nfeatures)] for j in range(self.nfeatures)]
+        self.invavgcov = np.linalg.inv(avgcov)#matrix(avgcov).I
         det = 0
         try:
-            avgcov_inv = np.matrix(avgcov).I
-            det = np.linalg.det(avgcov_inv)
+            det = np.linalg.det(self.invavgcov)
         except:
             pass
         if math.fabs(det) <= EPS:
@@ -193,6 +192,7 @@ class sClassifier:
         for i in range(self.nclasses):
             disc[i] = np.inner(self.w[i], fv) + self.cnst[i]
 
+        # Find the class that has the smallest distance
         maxclass = 0
         for i in range(1, self.nclasses):
             if disc[i] > disc[maxclass]:
@@ -208,12 +208,7 @@ class sClassifier:
                 # Quick check to avoid computing negligible term
                 if d > -7.0:
                     denom += math.exp(d)
-                # Handle the case where denom remains 0, as happened when drawing circles.
-                # According to the IEEE 754 Standard, division by zero should result in INF.
-                if denom == 0:
-                    ap = 0.0    # math.inf, or a probability of 0%
-                else:
-                    ap = 1.0 / denom
+            ap = 1.0 / denom
 
         if dp:
             # Calculate distance to mean of chosen class
@@ -230,7 +225,7 @@ class sClassifier:
         :return: distance
         """
         if not self.space or len(self.space) != len(v):
-            self.space = [None for i in range(len(v))]
+            self.space = [0 for i in range(len(v))]
 
         for i in range(len(v)):
             self.space[i] = v[i] - u[i]
@@ -251,14 +246,14 @@ class sClassifier:
             m = ru.SliceMatrix(avgcov, bv, bv)
             det = 0
             try:
-                det = np.linalg.det(np.matrix(m).I)
+                det = np.linalg.det(np.linalg.inv(np.matrix(m)))
             except:
                 pass
             if math.fabs(det) <= EPS:
                 bv[i] = 0
 
         m = ru.SliceMatrix(avgcov, bv, bv)
-        r = np.matrix(m).I
+        r = np.linalg.inv(np.matrix(m))
         det = 0
         try:
             det = np.linalg.det(r)
@@ -341,8 +336,8 @@ class sClassifier:
                     self.classdope[i].average,
                     self.classdope[j].average,
                     self.invavgcov)
-        if d[i][j] > max:
-            max = d[i][j]
+            if d[i][j] > max:
+                max = d[i][j]
 
         for n in range(1, len(nclosest)):
             min = max

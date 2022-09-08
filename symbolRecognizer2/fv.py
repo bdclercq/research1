@@ -93,7 +93,7 @@ class FV:
         """
         self.npoints += 1
 
-        # first point, initialize some vars
+        # First point, initialize some internal variables
         if self.npoints == 1:
             self.starttime = t
             self.endtime = t
@@ -113,7 +113,7 @@ class FV:
 
         if magsq1 <= dist_sq_threshold:
             self.npoints -= 1
-            return  # ignore a point close to the last point
+            return  # Ignore a point close to the last point
         # Update some internal values if needed
         if x < self.minx:
             self.minx = x
@@ -129,21 +129,21 @@ class FV:
         self.endtime = t
 
         d = math.sqrt(magsq1)
-        self.path_r += d  # update path length feature
+        self.path_r += d  # Update path length feature
 
-        # calculate initial theta when the third point is seen
+        # Calculate initial theta when the third point is seen
         if self.npoints == 3:
             dx = x - self.startx
             dy = y - self.starty
             magsq = dx * dx + dy * dy
             if magsq > dist_sq_threshold:
-                # find angle w.r.t.positive x axis e.g.(1, 0)
+                # Find angle w.r.t.positive x axis e.g.(1, 0)
                 recip = 1.0 / math.sqrt(magsq)
                 self.initial_cos = dx * recip
                 self.initial_sin = dy * recip
 
         if self.npoints >= 3:
-            # / * update angle based features * /
+            # Update angle based features
             th = math.atan2(dx1 * self.dy2 - self.dx2 * dy1,
                             dx1 * self.dx2 + dy1 * self.dy2)
             absth = math.atan2(dx1 * self.dy2 - self.dx2 * dy1,
@@ -187,7 +187,7 @@ class FV:
             self.y[PF_BB_TH] = math.atan2(self.maxy - self.miny, self.maxx - self.minx)
 
         # Compute the length and angle between the first and last points
-        selen = math.hypot(self.endx - self.startx, self.endy - self.starty);
+        selen = math.hypot(self.endx - self.startx, self.endy - self.starty)
         self.y[PF_SE_LEN] = selen
 
         # When the first and last points are very close,
@@ -209,8 +209,8 @@ class FV:
         self.y[PF_ATH] = self.abs_th
         self.y[PF_SQTH] = self.sharpness
 
-        self.y[PF_DUR] = (self.endtime - self.starttime) * .01
+        self.y[PF_DUR] = (self.endtime - self.starttime) * .01  # Convert to seconds
 
-        self.y[PF_MAXV] = self.maxv * 10000
+        self.y[PF_MAXV] = self.maxv * 10000 # Correction term of 10e4
 
         return self.y
